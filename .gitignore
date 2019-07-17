@@ -1,2 +1,4 @@
 /.stack-work/
 http-download.cabal
+*.swp
+*~
