@@ -20,7 +20,7 @@ module Network.HTTP.Download.Verified
 
 import qualified    Data.List as List
 import qualified    Data.ByteString.Base64 as B64
-import              Conduit (withSinkFile)
+import              Conduit (sinkHandle)
 import qualified    Data.Conduit.Binary as CB
 import qualified    Data.Conduit.List as CL
 
@@ -45,7 +45,8 @@ import              RIO.PrettyPrint
 import qualified    RIO.ByteString as ByteString
 import qualified    RIO.Text as Text
 import              System.Directory
-import qualified    System.FilePath as FP ((<.>))
+import qualified    System.FilePath as FP
+import              System.IO (openTempFileWithDefaultPermissions)
 
 -- | A request together with some checks to perform.
 data DownloadRequest = DownloadRequest
@@ -249,16 +250,17 @@ verifiedDownload DownloadRequest{..} destpath progressSink = do
     whenM' (liftIO getShouldDownload) $ do
         logDebug $ "Downloading " <> display (decodeUtf8With lenientDecode (path req))
         liftIO $ createDirectoryIfMissing True dir
-        recoveringHttp drRetryPolicy $
-            withSinkFile fptmp $ httpSink req . go
-        liftIO $ renameFile fptmp fp
+        withTempFileWithDefaultPermissions dir (FP.takeFileName fp) $ \fptmp htmp -> do
+            recoveringHttp drRetryPolicy $
+                httpSink req $ go (sinkHandle htmp)
+            hClose htmp
+            liftIO $ renameFile fptmp fp
   where
     whenM' mp m = do
         p <- mp
         if p then m >> return True else return False
 
     fp = toFilePath destpath
-    fptmp = fp FP.<.> "tmp"
     dir = toFilePath $ parent destpath
 
     getShouldDownload = do
@@ -322,3 +324,21 @@ verifiedDownload DownloadRequest{..} destpath progressSink = do
                   *> maybe (pure ()) (assertLengthSink drRequest) drLengthCheck
                   *> ZipSink sink
                   *> ZipSink (progressSink mcontentLength))
+
+
+
+-- | Like 'UnliftIO.Temporary.withTempFile', but the file is created with
+--   default file permissions, instead of read/write access only for the owner.
+withTempFileWithDefaultPermissions
+             :: MonadUnliftIO m
+             => FilePath -- ^ Temp dir to create the file in.
+             -> String   -- ^ File name template. See 'openTempFile'.
+             -> (FilePath -> Handle -> m a) -- ^ Callback that can use the file.
+             -> m a
+withTempFileWithDefaultPermissions tmpDir template action =
+  bracket
+    (liftIO (openTempFileWithDefaultPermissions tmpDir template))
+    (\(name, handle') -> liftIO (hClose handle' >> ignoringIOErrors (removeFile name)))
+    (uncurry action)
+  where
+    ignoringIOErrors = void. tryIO
