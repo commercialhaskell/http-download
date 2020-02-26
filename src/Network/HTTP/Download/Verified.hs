@@ -54,6 +54,7 @@ data DownloadRequest = DownloadRequest
     , drHashChecks :: [HashCheck]
     , drLengthCheck :: Maybe LengthCheck
     , drRetryPolicy :: RetryPolicy
+    , drForceDownload :: Bool -- ^ whether to redownload or not if file exists
     }
 
 -- | Default to retrying seven times with exponential backoff starting from
@@ -263,7 +264,7 @@ verifiedDownload DownloadRequest{..} destpath progressSink = do
     fp = toFilePath destpath
     dir = toFilePath $ parent destpath
 
-    getShouldDownload = do
+    getShouldDownload = if drForceDownload then return True else do
         fileExists <- doesFileExist fp
         if fileExists
             -- only download if file does not match expectations

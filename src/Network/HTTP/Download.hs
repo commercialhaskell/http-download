@@ -46,6 +46,7 @@ download req destpath = do
             , drHashChecks = []
             , drLengthCheck = Nothing
             , drRetryPolicy = drRetryPolicyDefault
+            , drForceDownload = False
             }
     let progressHook _ = return ()
     verifiedDownload downloadReq destpath progressHook

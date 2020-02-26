@@ -32,6 +32,7 @@ exampleReq = fromMaybe (error "exampleReq") $ do
         , drHashChecks = [exampleHashCheck]
         , drLengthCheck = Just exampleLengthCheck
         , drRetryPolicy = limitRetries 1
+        , drForceDownload = False
         }
 
 exampleHashCheck :: HashCheck
@@ -138,8 +139,21 @@ spec = do
             , drHashChecks = []
             , drLengthCheck = Nothing
             , drRetryPolicy = limitRetries 1
+            , drForceDownload = False
             }
       let go = run $ verifiedDownload dReq dest exampleProgressHook
       doesFileExist dest `shouldReturn` False
       go `shouldReturn` True
       doesFileExist dest `shouldReturn` True
+
+    it "does redownload when forceDownload is True" $ withTempDir' $ \dir -> do
+      examplePath <- getExamplePath dir
+      doesFileExist examplePath `shouldReturn` False
+      let go = run $ verifiedDownload exampleReq examplePath exampleProgressHook
+      go `shouldReturn` True
+      doesFileExist examplePath `shouldReturn` True
+
+      let forceReq = exampleReq { drForceDownload = True }
+      let go' = run $ verifiedDownload forceReq examplePath exampleProgressHook
+      go' `shouldReturn` True
+      doesFileExist examplePath `shouldReturn` True
