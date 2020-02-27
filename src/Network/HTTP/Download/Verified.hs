@@ -104,6 +104,8 @@ data VerifiedDownloadException
           String -- algorithm
           CheckHexDigest -- expected
           String -- actual (shown)
+    | DownloadHttpError
+          HttpException
   deriving (Typeable)
 instance Show VerifiedDownloadException where
     show (WrongContentLength req expected actual) =
@@ -121,6 +123,8 @@ instance Show VerifiedDownloadException where
         ++ "Expected: " ++ displayCheckHexDigest expected ++ "\n"
         ++ "Actual:   " ++ actual ++ "\n"
         ++ "For: " ++ show (getUri req)
+    show (DownloadHttpError exception) =
+      "Download expectation failure: " ++ show exception
 
 instance Exception VerifiedDownloadException
 
@@ -252,7 +256,7 @@ verifiedDownload DownloadRequest{..} destpath progressSink = do
         logDebug $ "Downloading " <> display (decodeUtf8With lenientDecode (path req))
         liftIO $ createDirectoryIfMissing True dir
         withTempFileWithDefaultPermissions dir (FP.takeFileName fp) $ \fptmp htmp -> do
-            recoveringHttp drRetryPolicy $
+            recoveringHttp drRetryPolicy $ catchingHttpExceptions $
                 httpSink req $ go (sinkHandle htmp)
             hClose htmp
             liftIO $ renameFile fptmp fp
@@ -325,7 +329,8 @@ verifiedDownload DownloadRequest{..} destpath progressSink = do
                   *> maybe (pure ()) (assertLengthSink drRequest) drLengthCheck
                   *> ZipSink sink
                   *> ZipSink (progressSink mcontentLength))
-
+    catchingHttpExceptions :: RIO env a -> RIO env a
+    catchingHttpExceptions action = catch action (throwM . DownloadHttpError)
 
 
 -- | Like 'UnliftIO.Temporary.withTempFile', but the file is created with
