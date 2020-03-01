@@ -27,13 +27,11 @@ getExamplePath dir = do
 exampleReq :: DownloadRequest
 exampleReq = fromMaybe (error "exampleReq") $ do
     req <- parseRequest "http://download.fpcomplete.com/stackage-cli/linux64/cabal-install-1.22.4.0.tar.gz"
-    return DownloadRequest
-        { drRequest = req
-        , drHashChecks = [exampleHashCheck]
-        , drLengthCheck = Just exampleLengthCheck
-        , drRetryPolicy = limitRetries 1
-        , drForceDownload = False
-        }
+    return $
+      setHashChecks [exampleHashCheck] $
+      setLengthCheck (Just exampleLengthCheck) $
+      setRetryPolicy (limitRetries 1) $
+      mkDownloadRequest req
 
 exampleHashCheck :: HashCheck
 exampleHashCheck = HashCheck
@@ -115,9 +113,7 @@ spec = do
 
     it "rejects incorrect content length" $ withTempDir' $ \dir -> do
       examplePath <- getExamplePath dir
-      let wrongContentLengthReq = exampleReq
-            { drLengthCheck = Just exampleWrongContentLength
-            }
+      let wrongContentLengthReq = setLengthCheck (Just exampleWrongContentLength) exampleReq
       let go = run $ verifiedDownload wrongContentLengthReq examplePath exampleProgressHook
       go `shouldThrow` isWrongContentLength
       doesFileExist examplePath `shouldReturn` False
@@ -125,7 +121,7 @@ spec = do
     it "rejects incorrect digest" $ withTempDir' $ \dir -> do
       examplePath <- getExamplePath dir
       let wrongHashCheck = exampleHashCheck { hashCheckHexDigest = exampleWrongDigest }
-      let wrongDigestReq = exampleReq { drHashChecks = [wrongHashCheck] }
+      let wrongDigestReq = setHashChecks [wrongHashCheck] exampleReq
       let go = run $ verifiedDownload wrongDigestReq examplePath exampleProgressHook
       go `shouldThrow` isWrongDigest
       doesFileExist examplePath `shouldReturn` False
@@ -134,13 +130,7 @@ spec = do
     it "can download hackage tarballs" $ withTempDir' $ \dir -> do
       dest <- (dir </>) <$> parseRelFile "acme-missiles-0.3.tar.gz"
       req <- parseRequest "http://hackage.haskell.org/package/acme-missiles-0.3/acme-missiles-0.3.tar.gz"
-      let dReq = DownloadRequest
-            { drRequest = req
-            , drHashChecks = []
-            , drLengthCheck = Nothing
-            , drRetryPolicy = limitRetries 1
-            , drForceDownload = False
-            }
+      let dReq = setRetryPolicy (limitRetries 1) $ mkDownloadRequest req
       let go = run $ verifiedDownload dReq dest exampleProgressHook
       doesFileExist dest `shouldReturn` False
       go `shouldReturn` True
@@ -153,7 +143,7 @@ spec = do
       go `shouldReturn` True
       doesFileExist examplePath `shouldReturn` True
 
-      let forceReq = exampleReq { drForceDownload = True }
+      let forceReq = setForceDownload True exampleReq
       let go' = run $ verifiedDownload forceReq examplePath exampleProgressHook
       go' `shouldReturn` True
       doesFileExist examplePath `shouldReturn` True

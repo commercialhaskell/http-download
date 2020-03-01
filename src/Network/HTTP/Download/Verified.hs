@@ -10,12 +10,18 @@
 module Network.HTTP.Download.Verified
   ( verifiedDownload
   , recoveringHttp
-  , DownloadRequest(..)
   , drRetryPolicyDefault
   , HashCheck(..)
   , CheckHexDigest(..)
   , LengthCheck
   , VerifiedDownloadException(..)
+  -- * DownloadRequest construction
+  , DownloadRequest
+  , mkDownloadRequest
+  , setHashChecks
+  , setLengthCheck
+  , setRetryPolicy
+  , setForceDownload
   ) where
 
 import qualified    Data.List as List
@@ -49,6 +55,12 @@ import qualified    System.FilePath as FP
 import              System.IO (openTempFileWithDefaultPermissions)
 
 -- | A request together with some checks to perform.
+--
+-- Construct using the 'downloadRequest' smart constructor and associated
+-- setters. The constructor itself is not exposed to avoid breaking changes
+-- with additional fields.
+--
+-- @since 0.2.0.0
 data DownloadRequest = DownloadRequest
     { drRequest :: Request
     , drHashChecks :: [HashCheck]
@@ -56,6 +68,36 @@ data DownloadRequest = DownloadRequest
     , drRetryPolicy :: RetryPolicy
     , drForceDownload :: Bool -- ^ whether to redownload or not if file exists
     }
+
+-- | Construct a new 'DownloadRequest' from the given 'Request'. Use associated
+-- setters to modify the value further.
+--
+-- @since 0.2.0.0
+mkDownloadRequest :: Request -> DownloadRequest
+mkDownloadRequest req = DownloadRequest req [] Nothing drRetryPolicyDefault False
+
+-- | Set the hash checks to be run when verifying.
+--
+-- @since 0.2.0.0
+setHashChecks :: [HashCheck] -> DownloadRequest -> DownloadRequest
+setHashChecks x dr = dr { drHashChecks = x }
+
+-- | Set the length check to be run when verifying.
+--
+-- @since 0.2.0.0
+setLengthCheck :: Maybe LengthCheck -> DownloadRequest -> DownloadRequest
+setLengthCheck x dr = dr { drLengthCheck = x }
+
+-- | Set the retry policy to be used when downloading.
+--
+-- @since 0.2.0.0
+setRetryPolicy :: RetryPolicy -> DownloadRequest -> DownloadRequest
+setRetryPolicy x dr = dr { drRetryPolicy = x }
+
+-- | If 'True', force download even if the file already exists. Useful for
+-- download a resource which may change over time.
+setForceDownload :: Bool -> DownloadRequest -> DownloadRequest
+setForceDownload x dr = dr { drForceDownload = x }
 
 -- | Default to retrying seven times with exponential backoff starting from
 -- one hundred milliseconds.

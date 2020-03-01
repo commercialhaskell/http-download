@@ -2,7 +2,12 @@
 {-# LANGUAGE DeriveDataTypeable    #-}
 {-# LANGUAGE OverloadedStrings     #-}
 module Network.HTTP.Download
-    ( DownloadRequest(..)
+    ( DownloadRequest
+    , mkDownloadRequest
+    , setHashChecks
+    , setLengthCheck
+    , setRetryPolicy
+    , setForceDownload
     , drRetryPolicyDefault
     , HashCheck(..)
     , DownloadException(..)
@@ -41,13 +46,7 @@ download :: HasTerm env
          -> Path Abs File -- ^ destination
          -> RIO env Bool -- ^ Was a downloaded performed (True) or did the file already exist (False)?
 download req destpath = do
-    let downloadReq = DownloadRequest
-            { drRequest = req
-            , drHashChecks = []
-            , drLengthCheck = Nothing
-            , drRetryPolicy = drRetryPolicyDefault
-            , drForceDownload = False
-            }
+    let downloadReq = mkDownloadRequest req
     let progressHook _ = return ()
     verifiedDownload downloadReq destpath progressHook
 

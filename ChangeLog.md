@@ -4,6 +4,7 @@
 
 * Add new field `drForceDownload` to `DownloadRequest` to allow force download even if the file exists
 * Add new value `DownloadHttpError` for `VerifiedDownloadException` type
+* Switch `DownloadRequest` fields over to smart constructors + setters
 
 ## 0.1.0.1
 
