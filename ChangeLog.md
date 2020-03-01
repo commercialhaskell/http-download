@@ -1,5 +1,10 @@
 # http-download changelog
 
+## 0.2.0.0
+
+* Add new field `drForceDownload` to `DownloadRequest` to allow force download even if the file exists
+* Add new value `DownloadHttpError` for `VerifiedDownloadException` type
+
 ## 0.1.0.1
 
 * Handle concurrent downloads of same file better [#1](https://github.com/commercialhaskell/http-download/pull/1)
