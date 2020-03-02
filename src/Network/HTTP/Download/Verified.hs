@@ -18,6 +18,7 @@ module Network.HTTP.Download.Verified
   -- * DownloadRequest construction
   , DownloadRequest
   , mkDownloadRequest
+  , modifyRequest
   , setHashChecks
   , setLengthCheck
   , setRetryPolicy
@@ -75,6 +76,12 @@ data DownloadRequest = DownloadRequest
 -- @since 0.2.0.0
 mkDownloadRequest :: Request -> DownloadRequest
 mkDownloadRequest req = DownloadRequest req [] Nothing drRetryPolicyDefault False
+
+-- | Modify the 'Request' inside a 'DownloadRequest'. Especially intended for modifying the @User-Agent@ request header.
+--
+-- @since 0.2.0.0
+modifyRequest :: (Request -> Request) -> DownloadRequest -> DownloadRequest
+modifyRequest f dr = dr { drRequest = f $ drRequest dr }
 
 -- | Set the hash checks to be run when verifying.
 --
