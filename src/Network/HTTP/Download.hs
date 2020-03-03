@@ -4,6 +4,7 @@
 module Network.HTTP.Download
     ( DownloadRequest
     , mkDownloadRequest
+    , modifyRequest
     , setHashChecks
     , setLengthCheck
     , setRetryPolicy
