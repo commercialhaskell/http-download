@@ -18,6 +18,55 @@ packages:
       size: 592
   original:
     hackage: crypton-conduit-0.2.3
+- completed:
+    hackage: crypton-connection-0.3.1@sha256:4d0958537197956b536ea91718b1749949757022532f50b8f683290056a19021,1581
+    pantry-tree:
+      sha256: e35ac3a35611afab9fafac633d0c4e6328b9cce4c8262378671d6c5a739e7e70
+      size: 394
+  original:
+    hackage: crypton-connection-0.3.1
+- completed:
+    hackage: crypton-x509-1.7.6@sha256:c567657a705b6d6521f9dd2de999bf530d618ec00f3b939df76a41fb0fe94281,2339
+    pantry-tree:
+      sha256: 729e7db8dfc0a8b43e08bbd8d1387c9065e39beda6ac39e0fb9f10140810a3eb
+      size: 1080
+  original:
+    hackage: crypton-x509-1.7.6
+- completed:
+    hackage: crypton-x509-store-1.6.9@sha256:422b9b9f87a7382c66385d047615b16fc86a68c08ea22b1e0117c143a2d44050,1750
+    pantry-tree:
+      sha256: 87654d130a7f987ee139c821a1be45736d18df9fa4cb1142c4e054d3802338f3
+      size: 406
+  original:
+    hackage: crypton-x509-store-1.6.9
+- completed:
+    hackage: crypton-x509-system-1.6.7@sha256:023ed573d82983bc473a37a89e0434a085b413be9f68d07e085361056afd4637,1532
+    pantry-tree:
+      sha256: c0ca49e6a9537f3fdb7b47c5cfe93f7d744a369bf9d089f3c668b9c2d97402b7
+      size: 399
+  original:
+    hackage: crypton-x509-system-1.6.7
+- completed:
+    hackage: crypton-x509-validation-1.6.12@sha256:85989721b64be4b90de9f66ef641c26f57575cffed1a50d707065fb60176f386,2227
+    pantry-tree:
+      sha256: d4a0135f11218614fcd912cffaf54de8f749caca8696380e2589cbcfd64cc681
+      size: 639
+  original:
+    hackage: crypton-x509-validation-1.6.12
+- completed:
+    hackage: http-client-tls-0.3.6.2@sha256:a9362782ddbc1d1f84a2919bbb1b224cefd2b24071b81c3aeb5c5c8d6a1fdb0f,2004
+    pantry-tree:
+      sha256: 600dfa374198408aa466fdb483834a51a0e15a25fb095992f82b0f4f05adb3f7
+      size: 435
+  original:
+    hackage: http-client-tls-0.3.6.2
+- completed:
+    hackage: tls-1.7.1@sha256:3759864ce4452c31b7740ef181667dd3fdd3d136d7bdc01e0cf5200609973d5c,5566
+    pantry-tree:
+      sha256: 86f1b4c5d019628ceaa1a747af080a4ab43aba25ff7b7d9812ddbdf2a7dd8c00
+      size: 4897
+  original:
+    hackage: tls-1.7.1
 snapshots:
 - completed:
     sha256: 2e7d4a730d8eb5373b2d383fac84efcf7c81e3b7a5fce71b4c2e19a1768f25a6

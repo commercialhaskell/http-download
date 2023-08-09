@@ -8,6 +8,8 @@ copyright:   2018-2023 FP Complete
 license:     BSD3
 github:      commercialhaskell/http-download
 description: Higher level HTTP download APIs include verification of content and retries
+extra-source-files:
+- ChangeLog.md
 
 dependencies:
 - base >=4.10 && < 5
