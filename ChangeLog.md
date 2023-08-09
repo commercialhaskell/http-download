@@ -1,5 +1,9 @@
 # http-download changelog
 
+## 0.2.1.0
+
+* Depend on `crypton` instead of `cryptonite`. No changes to API.
+
 ## 0.2.0.0
 
 * Add new field `drForceDownload` to `DownloadRequest` to allow force download even if the file exists

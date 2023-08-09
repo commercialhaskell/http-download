@@ -1,4 +1,5 @@
-/.stack-work/
-http-download.cabal
 *.swp
 *~
+
+# Haskell Tool Stack-related
+/.stack-work/

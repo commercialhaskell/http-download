@@ -1,0 +1,17 @@
+# Snapshot specification for GHC 9.4.5.
+resolver: lts-21.6 # GHC 9.4.5
+
+packages:
+- crypton-0.33
+- crypton-conduit-0.2.3
+- crypton-connection-0.3.1
+- crypton-x509-1.7.6
+- crypton-x509-store-1.6.9
+- crypton-x509-system-1.6.7
+- crypton-x509-validation-1.6.12
+- http-client-tls-0.3.6.2
+- tls-1.7.1
+
+flags:
+  ansi-terminal:
+    win32-2-13-1: false
