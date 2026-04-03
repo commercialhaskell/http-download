@@ -1,5 +1,9 @@
 # http-download changelog
 
+## 0.2.2.0
+
+* Depend on `ram` instead of `memory`. No changes to API.
+
 ## 0.2.1.0
 
 * Depend on `crypton` instead of `cryptonite`. No changes to API.
