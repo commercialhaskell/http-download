@@ -7,8 +7,10 @@ on:
     - master
   workflow_dispatch:
 
-# As of 6 August 2023, ubuntu-latest, windows-latest and macos-latest come
-# with Stack 2.11.1 and GHC 9.6.2.
+# As of 2026-06-30:
+# * ubuntu-latest comes with Stack 3.11.1 and GHC 9.14.1
+# * windows-latest comes with Stack 3.11.1 and GHC 9.14.1
+# * macos-latest does not come with Haskell tools
 
 jobs:
   unit-tests:
@@ -19,34 +21,42 @@ jobs:
       matrix:
         os:
         - ubuntu-latest
-        resolver:
-        - stack-ghc-9.2.8.yaml
-        - stack-ghc-9.4.5.yaml
-        - stack-ghc-9.6.2.yaml
+        snapshot:
+        - stack-ghc-9.8.4.yaml
+        - stack-ghc-9.10.3.yaml
+        - stack-ghc-9.12.4.yaml
+        - stack-ghc-9.14.1.yaml
         include:
         - os: windows-latest
-          resolver: stack-ghc-9.6.2.yaml
+          snapshot: stack-ghc-9.10.3.yaml
         - os: macos-latest
-          resolver: stack-ghc-9.6.2.yaml
+          snapshot: stack-ghc-9.10.3.yaml
     steps:
     - name: Clone project
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
     - name: Cache dependencies on Unix-like OS
       if: startsWith(runner.os, 'Linux') || startsWith(runner.os, 'macOS')
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       with:
         path: ~/.stack
-        key: ${{ runner.os }}-${{ matrix.resolver }}
+        key: ${{ runner.os }}-${{ matrix.snapshot }}
     - name: Cache dependencies on Windows
       if: startsWith(runner.os, 'Windows')
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       with:
         path: |
           ~\AppData\Roaming\stack
           ~\AppData\Local\Programs\stack
-        key: ${{ runner.os }}-${{ matrix.resolver }}
+        key: ${{ runner.os }}-${{ matrix.snapshot }}
     - name: Run tests
       shell: bash
       run: |
         set -ex
-        stack --resolver ${{ matrix.resolver }} test --bench --no-run-benchmarks --haddock --no-haddock-deps
+        if [[ "${{ matrix.os }}" == "macos-latest" ]]
+        then
+          # As at 2026-06-30:
+          #
+          # * macos-latest does not include Haskell tools.
+          curl -sSL https://get.haskellstack.org/ | sh
+        fi
+        stack --snapshot ${{ matrix.snapshot }} test --bench --no-run-benchmarks --haddock --no-haddock-deps
