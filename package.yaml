@@ -1,5 +1,5 @@
 name:        http-download
-version:     0.2.1.0
+version:     0.2.2.0
 synopsis:    Verified downloads with retries
 category:    Development
 author:      Michael Snoyman
@@ -11,7 +11,7 @@ description: Higher level HTTP download APIs include verification of content and
 
 dependencies:
 - base >=4.10 && < 5
-- crypton
+- crypton >= 1.1.0
 - http-client
 - path
 - path-io
@@ -26,13 +26,13 @@ library:
   - bytestring
   - conduit
   - conduit-extra
-  - crypton-conduit
+  - crypton-conduit >= 0.3.0
   - directory
   - exceptions
   - filepath
   - http-conduit
   - http-types
-  - memory
+  - ram
 
 tests:
   spec:

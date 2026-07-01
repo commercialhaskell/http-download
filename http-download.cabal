@@ -1,11 +1,11 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.39.1.
 --
 -- see: https://github.com/sol/hpack
 
 name:           http-download
-version:        0.2.1.0
+version:        0.2.2.0
 synopsis:       Verified downloads with retries
 description:    Higher level HTTP download APIs include verification of content and retries
 category:       Development
@@ -36,17 +36,17 @@ library
     , bytestring
     , conduit
     , conduit-extra
-    , crypton
-    , crypton-conduit
+    , crypton >=1.1.0
+    , crypton-conduit >=0.3.0
     , directory
     , exceptions
     , filepath
     , http-client
     , http-conduit
     , http-types
-    , memory
     , path
     , path-io
+    , ram
     , retry
     , rio
     , rio-prettyprint
@@ -62,7 +62,7 @@ test-suite spec
       test
   build-depends:
       base >=4.10 && <5
-    , crypton
+    , crypton >=1.1.0
     , hspec
     , hspec-discover
     , http-client
