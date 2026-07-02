@@ -1,22 +1,27 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.39.1.
+-- This file has been generated from package.yaml by hpack version 0.39.6.
 --
 -- see: https://github.com/sol/hpack
 
 name:           http-download
 version:        0.2.2.0
 synopsis:       Verified downloads with retries
-description:    Higher level HTTP download APIs include verification of content and retries
+description:    A Haskell library that provides higher-level functions to try to download
+                files over HTTP, including verification of content and retries.
 category:       Development
 homepage:       https://github.com/commercialhaskell/http-download#readme
 bug-reports:    https://github.com/commercialhaskell/http-download/issues
 author:         Michael Snoyman
-maintainer:     michael@snoyman.com
-copyright:      2018-2023 FP Complete
+maintainer:     public@pilgrem.com,
+                michael@snoyman.com
+copyright:      2018-2026 FP Complete
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
+extra-source-files:
+    CHANGELOG.md
+    README.md
 
 source-repository head
   type: git
@@ -26,10 +31,9 @@ library
   exposed-modules:
       Network.HTTP.Download
       Network.HTTP.Download.Verified
-  other-modules:
-      Paths_http_download
   hs-source-dirs:
-      src/
+      src
+  ghc-options: -Wall
   build-depends:
       base >=4.10 && <5
     , base64-bytestring
@@ -57,9 +61,9 @@ test-suite spec
   main-is: Spec.hs
   other-modules:
       Network.HTTP.Download.VerifiedSpec
-      Paths_http_download
   hs-source-dirs:
       test
+  ghc-options: -Wall
   build-depends:
       base >=4.10 && <5
     , crypton >=1.1.0
