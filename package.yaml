@@ -1,13 +1,22 @@
-name:        http-download
-version:     0.2.2.0
-synopsis:    Verified downloads with retries
-category:    Development
-author:      Michael Snoyman
-maintainer:  michael@snoyman.com
-copyright:   2018-2023 FP Complete
-license:     BSD3
-github:      commercialhaskell/http-download
-description: Higher level HTTP download APIs include verification of content and retries
+spec-version: 0.36.0
+
+name: http-download
+version: 0.2.2.0
+synopsis: Verified downloads with retries
+category: Development
+author: Michael Snoyman
+maintainer:
+- public@pilgrem.com
+- michael@snoyman.com
+copyright: 2018-2026 FP Complete
+github: commercialhaskell/http-download
+description: |
+  A Haskell library that provides higher-level functions to try to download
+  files over HTTP, including verification of content and retries.
+
+extra-source-files:
+- CHANGELOG.md
+- README.md
 
 dependencies:
 - base >=4.10 && < 5
@@ -19,8 +28,11 @@ dependencies:
 - rio
 - rio-prettyprint
 
+ghc-options:
+- -Wall
+
 library:
-  source-dirs: src/
+  source-dirs: src
   dependencies:
   - base64-bytestring
   - bytestring

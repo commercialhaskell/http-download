@@ -1,17 +1,31 @@
 {-# LANGUAGE NoImplicitPrelude #-}
-module Network.HTTP.Download.VerifiedSpec (spec) where
 
-import           Control.Retry                  (limitRetries)
-import           Crypto.Hash
-import           Network.HTTP.Client
+module Network.HTTP.Download.VerifiedSpec
+  ( spec
+  ) where
+
+import           Control.Retry ( limitRetries )
+import           Crypto.Hash ( SHA1 (..) )
+import           Network.HTTP.Client ( parseRequest )
 import           Network.HTTP.Download.Verified
+                   ( CheckHexDigest (..), DownloadRequest
+                   , HashCheck (..)
+                   , LengthCheck, VerifiedDownloadException (..)
+                   , mkDownloadRequest, setForceDownload, setHashChecks
+                   , setLengthCheck, setRetryPolicy, verifiedDownload
+                   )
 import           Path
-import           Path.IO -- hiding (withSystemTempDir)
-import           System.IO (writeFile, readFile)
+                   ( Abs, Dir, File, Path, (</>), parseRelFile, toFilePath )
+import           Path.IO ( doesFileExist, withSystemTempDir ) -- hiding (withSystemTempDir)
 import           RIO
-import           RIO.PrettyPrint
+import           RIO.PrettyPrint ( HasTerm (..) )
 import           RIO.PrettyPrint.StylesUpdate
+                   ( HasStylesUpdate (..), StylesUpdate (..) )
 import           Test.Hspec
+                   ( Spec, describe, it, shouldNotReturn, shouldReturn
+                   , shouldThrow
+                   )
+import           System.IO ( readFile, writeFile )
 
 -- TODO: share across test files
 withTempDir' :: (Path Abs Dir -> IO a) -> IO a
@@ -20,24 +34,25 @@ withTempDir' = withSystemTempDir "NHD_VerifiedSpec"
 -- | An example path to download the exampleReq.
 getExamplePath :: Path Abs Dir -> IO (Path Abs File)
 getExamplePath dir = do
-    file <- parseRelFile "cabal-install-1.22.4.0.tar.gz"
-    return (dir </> file)
+  file <- parseRelFile "cabal-install-1.22.4.0.tar.gz"
+  pure (dir </> file)
 
 -- | An example DownloadRequest that uses a SHA1
 exampleReq :: DownloadRequest
 exampleReq = fromMaybe (error "exampleReq") $ do
-    req <- parseRequest "http://download.fpcomplete.com/stackage-cli/linux64/cabal-install-1.22.4.0.tar.gz"
-    return $
-      setHashChecks [exampleHashCheck] $
-      setLengthCheck (Just exampleLengthCheck) $
-      setRetryPolicy (limitRetries 1) $
-      mkDownloadRequest req
+  req <- parseRequest "http://download.fpcomplete.com/stackage-cli/linux64/cabal-install-1.22.4.0.tar.gz"
+  pure $
+    setHashChecks [exampleHashCheck] $
+    setLengthCheck (Just exampleLengthCheck) $
+    setRetryPolicy (limitRetries 1) $
+    mkDownloadRequest req
 
 exampleHashCheck :: HashCheck
 exampleHashCheck = HashCheck
-    { hashCheckAlgorithm = SHA1
-    , hashCheckHexDigest = CheckHexDigestString "b98eea96d321cdeed83a201c192dac116e786ec2"
-    }
+  { hashCheckAlgorithm = SHA1
+  , hashCheckHexDigest =
+      CheckHexDigestString "b98eea96d321cdeed83a201c192dac116e786ec2"
+  }
 
 exampleLengthCheck :: LengthCheck
 exampleLengthCheck = 302513
@@ -48,7 +63,8 @@ exampleWrongContentLength = 302512
 
 -- | The wrong SHA1 digest for exampleReq
 exampleWrongDigest :: CheckHexDigest
-exampleWrongDigest = CheckHexDigestString "b98eea96d321cdeed83a201c192dac116e786ec3"
+exampleWrongDigest =
+  CheckHexDigestString "b98eea96d321cdeed83a201c192dac116e786ec3"
 
 exampleWrongContent :: String
 exampleWrongContent = "example wrong content"
@@ -65,21 +81,21 @@ data TestTerm = TestTerm
 
 instance HasLogFunc TestTerm where
   -- ingoring output for now
-  logFuncL = lens (const $ mkLogFunc mempty) (\t _ -> t)
+  logFuncL = lens (const $ mkLogFunc mempty) const
 
 instance HasStylesUpdate TestTerm where
-  stylesUpdateL = lens (const $ StylesUpdate []) (\t _ -> t)
+  stylesUpdateL = lens (const $ StylesUpdate []) const
 
 instance HasTerm TestTerm where
-  useColorL = lens (const False) (\t _ -> t)
-  termWidthL = lens (const 80) (\t _ -> t)
+  useColorL = lens (const False) const
+  termWidthL = lens (const 80) const
 
 spec :: Spec
 spec = do
-  let exampleProgressHook _ = return ()
+  let exampleProgressHook _ = pure ()
 
   describe "verifiedDownload" $ do
-    let run func = runRIO TestTerm func
+    let run = runRIO TestTerm
     -- Preconditions:
     -- * the exampleReq server is running
     -- * the test runner has working internet access to it
